@@ -9,94 +9,243 @@ All colors MUST be HSL.
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 0 0% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 10%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 14 100% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 14 100% 55%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 12 100% 71%;
+    --secondary-foreground: 0 0% 10%;
+    --secondary-hover: 12 100% 66%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 12 100% 90%;
+    --accent-foreground: 14 100% 30%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 14 100% 60%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(14 100% 60%), hsl(12 100% 71%));
+    --gradient-secondary: linear-gradient(135deg, hsl(12 100% 71%), hsl(12 100% 80%));
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(12 100% 71%) 50%, hsl(14 100% 60%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 98%));
 
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Shadows */
+    --shadow-glow: 0 10px 40px -10px hsl(14 100% 60% / 0.3);
+    --shadow-card: 0 4px 20px -2px hsl(14 50% 50% / 0.1);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 0 0% 10%;
+    --foreground: 0 0% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 15%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 14 100% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 14 100% 55%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 12 100% 71%;
+    --secondary-foreground: 0 0% 10%;
+    --secondary-hover: 12 100% 66%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 14 100% 25%;
+    --accent-foreground: 12 100% 80%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 14 100% 60%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(14 100% 60%), hsl(12 100% 71%));
+    --gradient-secondary: linear-gradient(135deg, hsl(12 100% 71%), hsl(12 100% 80%));
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 20%) 0%, hsl(12 100% 71%) 50%, hsl(14 100% 60%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 15%), hsl(0 0% 18%));
+
+    --shadow-glow: 0 10px 40px -10px hsl(14 100% 60% / 0.4);
+    --shadow-card: 0 4px 20px -2px hsl(0 0% 0% / 0.3);
+  }
+}
+
+/* CKEditor Custom Styles */
+.ckeditor-container {
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  overflow: hidden;
+  background: hsl(var(--background));
+}
+
+.ckeditor-container .ck-editor {
+  width: 100%;
+}
+
+.ckeditor-container .ck-editor__main {
+  min-height: 400px;
+}
+
+.ckeditor-container .ck-editor__editable {
+  min-height: 400px;
+  padding: 1rem;
+  font-size: 14px;
+  line-height: 1.6;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.ckeditor-container .ck-editor__editable:focus {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+}
+
+.ckeditor-container .ck-toolbar {
+  background: hsl(var(--muted));
+  border-bottom: 1px solid hsl(var(--border));
+  padding: 8px;
+}
+
+.ckeditor-container .ck-button {
+  background: transparent;
+  color: hsl(var(--foreground));
+}
+
+.ckeditor-container .ck-button:hover {
+  background: hsl(var(--accent));
+}
+
+.ckeditor-container .ck-button.ck-on {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+/* US Letter Page Editor Styles (8.5" x 11") - Separated Architecture */
+.a4-editor-wrapper {
+  background: hsl(var(--muted) / 0.3);
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.a4-page {
+  width: 8.5in;
+  min-height: 11in;
+  margin: 0 auto 2rem auto;
+  background: white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  padding: 1in;
+  page-break-after: always;
+}
+
+.a4-page:last-child {
+  margin-bottom: 0;
+}
+
+.a4-page .ck-editor {
+  border: none;
+}
+
+.a4-page .ck-editor__main {
+  border: none;
+}
+
+.a4-page .ck-editor__editable {
+  min-height: 9in;
+  background: white;
+  color: #000;
+  font-size: 12pt;
+  line-height: 1.5;
+  font-family: 'Times New Roman', Times, serif;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  outline: none !important;
+}
+
+/* Chapter page break styles */
+.chapter-page {
+  page-break-before: always;
+  margin-top: 3rem;
+  padding-top: 2rem;
+}
+
+.chapter-page:first-of-type {
+  page-break-before: auto;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.a4-page .ck-editor__editable:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Hide CKEditor branding */
+.ck-powered-by {
+  display: none !important;
+}
+
+.ck.ck-balloon-panel {
+  display: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .ckeditor-container .ck-toolbar {
+    flex-wrap: wrap;
+  }
+  
+  .ckeditor-container .ck-editor__editable {
+    min-height: 300px;
+    font-size: 13px;
+  }
+  
+  .a4-editor-wrapper {
+    padding: 0.5rem;
+  }
+  
+  .a4-page {
+    width: 100%;
+    min-height: auto;
+    padding: 15mm 10mm;
+  }
+  
+  .a4-page .ck-editor__editable {
+    min-height: auto;
+    font-size: 11pt;
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+  }
+  
+  html {
+    overflow-y: scroll;
   }
 
   body {
