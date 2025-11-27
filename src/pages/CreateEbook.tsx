@@ -15,6 +15,7 @@ import logo from "@/assets/logo.png";
 import logoDark from "@/assets/logo-dark.png";
 import { EBOOK_TEMPLATES } from "@/components/templates/ebooks";
 import { ebookSchema, chapterSchema } from "@/lib/validations";
+import { useEbookTemplates } from "@/hooks/useEbookTemplates";
 type WizardStep = "origin" | "upload" | "mapping" | "metadata" | "template" | "complete";
 type OriginType = "blank" | "import";
 interface ParsedChapter {
@@ -45,6 +46,7 @@ const CreateEbook = () => {
     toast
   } = useToast();
   const { theme } = useTheme();
+  const { templates: ebookTemplates, loading: templatesLoading } = useEbookTemplates();
   useEffect(() => {
     checkUser();
     loadUserProfile();
@@ -569,11 +571,17 @@ const CreateEbook = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {EBOOK_TEMPLATES.map(template => {
+              {ebookTemplates.map(template => {
             const templateIcon = template.id === "classic" ? Type : template.id === "visual" ? Image : template.id === "minimal" ? Minus : BookOpen;
             const TemplateIcon = templateIcon;
+            const isApiTemplate = template.source === 'api';
             return <Card key={template.id} className={`p-6 cursor-pointer hover:shadow-card transition-all border-2 ${selectedTemplate === template.id ? "border-primary" : ""}`} onClick={() => setSelectedTemplate(template.id)}>
-                    {true && <div className="aspect-[3/4] bg-gradient-to-br from-muted to-muted/50 rounded-lg mb-4 flex items-center justify-center border-2 border-border relative overflow-hidden">
+                    {isApiTemplate && template.thumbnail ? (
+                      <div className="aspect-[3/4] rounded-lg mb-4 overflow-hidden border-2 border-border">
+                        <img src={template.thumbnail} alt={template.name} className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                    <div className="aspect-[3/4] bg-gradient-to-br from-muted to-muted/50 rounded-lg mb-4 flex items-center justify-center border-2 border-border relative overflow-hidden">
                         {template.id === "classic" && <div className="absolute inset-0 p-4 flex flex-col gap-2">
                             <div className="h-3 bg-foreground/80 w-3/4 rounded mx-auto"></div>
                             <div className="h-1 bg-foreground/20 w-full rounded"></div>
@@ -606,8 +614,12 @@ const CreateEbook = () => {
                             </div>
                             <div className="w-1/3 bg-primary/20 rounded"></div>
                           </div>}
-                      </div>}
-                    <h3 className="font-semibold mb-2">{template.name}</h3>
+                      </div>
+                    )}
+                    <h3 className="font-semibold mb-2">
+                      {template.name}
+                      {isApiTemplate && <span className="ml-2 text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">API</span>}
+                    </h3>
                     <p className="text-sm text-muted-foreground">
                       {template.description}
                     </p>
@@ -619,8 +631,8 @@ const CreateEbook = () => {
               <Button variant="outline" onClick={handleBack}>
                 Voltar
               </Button>
-              <Button onClick={handleNext} disabled={!selectedTemplate || loading} className="bg-gradient-primary hover:opacity-90">
-                {loading ? "Criando..." : "Criar eBook"}
+              <Button onClick={handleNext} disabled={!selectedTemplate || loading || templatesLoading} className="bg-gradient-primary hover:opacity-90">
+                {loading ? "Criando..." : templatesLoading ? "Carregando templates..." : "Criar eBook"}
               </Button>
             </div>
           </div>}
