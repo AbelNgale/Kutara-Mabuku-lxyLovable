@@ -95,7 +95,7 @@ const Auth = () => {
         if (error) throw error;
         toast({
           title: "Conta criada!",
-          description: "Bem-vindo ao PageSmith Hub."
+          description: "Bem-vindo! Sua conta foi criada com sucesso."
         });
       }
     } catch (error: any) {
