@@ -42,7 +42,10 @@ VALUES
   ('ebook-uploads', 'ebook-uploads', false)
 ON CONFLICT (id) DO NOTHING;
 
--- 3. Políticas RLS para ebook-covers (público para leitura)
+-- 3. Habilitar RLS no storage.objects (se ainda não estiver)
+ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+
+-- 4. Políticas RLS para ebook-covers (público para leitura)
 CREATE POLICY IF NOT EXISTS "Public can view ebook covers"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'ebook-covers');
