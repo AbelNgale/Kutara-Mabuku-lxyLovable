@@ -41,75 +41,29 @@ VALUES
   ('ebook-covers', 'ebook-covers', true),
   ('ebook-uploads', 'ebook-uploads', false)
 ON CONFLICT (id) DO NOTHING;
-
--- 3. Habilitar RLS no storage.objects (se ainda não estiver)
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
-
--- 4. Políticas RLS para ebook-covers (público para leitura)
-DROP POLICY IF EXISTS "Public can view ebook covers" ON storage.objects;
-CREATE POLICY "Public can view ebook covers"
-  ON storage.objects FOR SELECT
-  USING (bucket_id = 'ebook-covers');
-
-DROP POLICY IF EXISTS "Authenticated users can upload covers" ON storage.objects;
-CREATE POLICY "Authenticated users can upload covers"
-  ON storage.objects FOR INSERT
-  WITH CHECK (
-    bucket_id = 'ebook-covers' AND
-    auth.role() = 'authenticated'
-  );
-
-DROP POLICY IF EXISTS "Users can update their own covers" ON storage.objects;
-CREATE POLICY "Users can update their own covers"
-  ON storage.objects FOR UPDATE
-  USING (
-    bucket_id = 'ebook-covers' AND
-    auth.uid()::text = (storage.foldername(name))[1]
-  );
-
-DROP POLICY IF EXISTS "Users can delete their own covers" ON storage.objects;
-CREATE POLICY "Users can delete their own covers"
-  ON storage.objects FOR DELETE
-  USING (
-    bucket_id = 'ebook-covers' AND
-    auth.uid()::text = (storage.foldername(name))[1]
-  );
-
--- 5. Políticas RLS para ebook-uploads (privado)
-DROP POLICY IF EXISTS "Users can view their own uploads" ON storage.objects;
-CREATE POLICY "Users can view their own uploads"
-  ON storage.objects FOR SELECT
-  USING (
-    bucket_id = 'ebook-uploads' AND
-    auth.uid()::text = (storage.foldername(name))[1]
-  );
-
-DROP POLICY IF EXISTS "Users can upload their own files" ON storage.objects;
-CREATE POLICY "Users can upload their own files"
-  ON storage.objects FOR INSERT
-  WITH CHECK (
-    bucket_id = 'ebook-uploads' AND
-    auth.role() = 'authenticated'
-  );
-
-DROP POLICY IF EXISTS "Users can update their own uploads" ON storage.objects;
-CREATE POLICY "Users can update their own uploads"
-  ON storage.objects FOR UPDATE
-  USING (
-    bucket_id = 'ebook-uploads' AND
-    auth.uid()::text = (storage.foldername(name))[1]
-  );
-
-DROP POLICY IF EXISTS "Users can delete their own uploads" ON storage.objects;
-CREATE POLICY "Users can delete their own uploads"
-  ON storage.objects FOR DELETE
-  USING (
-    bucket_id = 'ebook-uploads' AND
-    auth.uid()::text = (storage.foldername(name))[1]
-  );
 ```
 
-### 2. Configurar API de Templates Externos (Opcional)
+### 2. Configurar Políticas de Storage (Supabase Dashboard)
+
+Vá para **Storage** no Supabase Dashboard e configure as políticas:
+
+**Para o bucket `ebook-covers`:**
+1. Clique em `ebook-covers` → Policies
+2. Adicione estas políticas:
+   - **SELECT (público)**: `bucket_id = 'ebook-covers'`
+   - **INSERT (autenticados)**: `bucket_id = 'ebook-covers' AND auth.role() = 'authenticated'`
+   - **UPDATE (próprio)**: `bucket_id = 'ebook-covers' AND auth.uid()::text = (storage.foldername(name))[1]`
+   - **DELETE (próprio)**: `bucket_id = 'ebook-covers' AND auth.uid()::text = (storage.foldername(name))[1]`
+
+**Para o bucket `ebook-uploads`:**
+1. Clique em `ebook-uploads` → Policies
+2. Adicione estas políticas:
+   - **SELECT (próprio)**: `bucket_id = 'ebook-uploads' AND auth.uid()::text = (storage.foldername(name))[1]`
+   - **INSERT (autenticados)**: `bucket_id = 'ebook-uploads' AND auth.role() = 'authenticated'`
+   - **UPDATE (próprio)**: `bucket_id = 'ebook-uploads' AND auth.uid()::text = (storage.foldername(name))[1]`
+   - **DELETE (próprio)**: `bucket_id = 'ebook-uploads' AND auth.uid()::text = (storage.foldername(name))[1]`
+
+### 3. Configurar API de Templates Externos (Opcional)
 
 Para usar templates de APIs externas:
 
@@ -136,7 +90,7 @@ Para usar templates de APIs externas:
    - Altere `API_TEMPLATES_ENDPOINT` para sua API
    - Adapte o mapeamento de dados se necessário
 
-### 3. Verificar que a formatação Rich Text está funcionando
+### 4. Verificar que a formatação Rich Text está funcionando
 
 A formatação (negrito, itálico, sublinhado) **já está funcionando corretamente** no código:
 - O CKEditor salva o conteúdo como HTML
@@ -148,7 +102,7 @@ A formatação (negrito, itálico, sublinhado) **já está funcionando corretame
 2. Confirme que o campo `content` na tabela `chapters` não está truncando o texto
 3. Tente fazer um teste simples: adicione negrito, salve, recarregue a página
 
-### 4. Problemas Resolvidos
+### 5. Problemas Resolvidos
 
 ✅ **Campo Género**: Agora populated com 20 opções após executar o SQL  
 ✅ **Templates**: Sistema com fallback - usa 3 locais + opcionalmente API externa  
