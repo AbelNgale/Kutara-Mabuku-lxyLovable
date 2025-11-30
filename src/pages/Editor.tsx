@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import CKEditorComponent from "@/components/CKEditorComponent";
 import SimplifiedCKEditor from "@/components/SimplifiedCKEditor";
+import { TemplateRenderer } from "@/components/TemplateRenderer";
 import { saveAs } from 'file-saver';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
 import { ArrowLeft, Save, Eye, Download, Plus, Trash2, FileText, Upload, X } from "lucide-react";
@@ -692,32 +693,22 @@ export default function Editor() {
           <TabsContent value="preview" className="mt-0">
             <div className="space-y-6">
               <div className="bg-background p-4 rounded-lg border">
-                <h2 className="text-2xl font-bold mb-2">Visualização do Editor</h2>
+                <h2 className="text-2xl font-bold mb-2">Visualização do Template</h2>
                 <p className="text-sm text-muted-foreground">
-                  Edite seu ebook. Cada capítulo inicia numa nova página.
+                  Visualize como seu ebook ficará com o template selecionado: <span className="font-semibold">{ebook.template_id}</span>
                 </p>
               </div>
               
-              <SimplifiedCKEditor value={`
-                  <div style="text-align: center; margin-bottom: 3rem;">
-                    <h1 style="font-size: 2rem; font-weight: bold; margin-bottom: 2rem;">${ebook?.title || ''}</h1>
-                    <p style="font-size: 1.2rem; margin-bottom: 1rem;"><strong>Autor:</strong> ${ebook?.author || ''}</p>
-                  </div>
-                  <div style="padding: 1.5rem; background: #f5f5f5; border-left: 4px solid #3B6AB8; margin-bottom: 3rem;">
-                    <p style="font-weight: bold; margin-bottom: 1rem;">Descrição:</p>
-                    <div>${ebook?.description || ''}</div>
-                  </div>
-                  <div style="page-break-before: always; margin-top: 3rem;"></div>
-                  ${chapters.map((chapter, index) => `
-                    ${index > 0 ? '<div style="page-break-before: always; margin-top: 3rem;"></div>' : ''}
-                    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 2rem; color: #3B6AB8;">${chapter.title}</h2>
-                    <div>${chapter.content}</div>
-                  `).join('')}
-                `} onChange={content => {
-              // Extract chapter content from the full document
-              // This is a simplified approach - in production you'd want more robust parsing
-              console.log('Content updated:', content);
-            }} />
+              <div className="bg-white dark:bg-slate-950 p-8 rounded-lg border">
+                <TemplateRenderer
+                  templateId={ebook.template_id}
+                  title={ebook.title}
+                  description={ebook.description || ''}
+                  author={ebook.author}
+                  chapters={chapters}
+                  coverImage={coverImagePreview}
+                />
+              </div>
             </div>
           </TabsContent>
         </Tabs>

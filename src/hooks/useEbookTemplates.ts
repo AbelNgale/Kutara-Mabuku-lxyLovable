@@ -19,9 +19,29 @@ const API_TEMPLATES_ENDPOINT = 'https://api.jsonbin.io/v3/b/692cd165d0ea881f400a
  * Se falhar ou API não retornar dados, usa templates locais como fallback.
  */
 export const useEbookTemplates = () => {
-  const [templates, setTemplates] = useState<EbookTemplate[]>([]);
+  // Inicializa com templates locais imediatamente
+  const initialTemplates = EBOOK_TEMPLATES.map((t: typeof EBOOK_TEMPLATES[number]) => ({
+    id: t.id,
+    name: t.name,
+    description: t.description,
+    component: t.component,
+    source: 'local' as const,
+  }));
+
+  const [templates, setTemplates] = useState<EbookTemplate[]>(initialTemplates);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Função auxiliar para criar templates locais
+  const getLocalTemplates = (): EbookTemplate[] => {
+    return EBOOK_TEMPLATES.map((t: typeof EBOOK_TEMPLATES[number]) => ({
+      id: t.id,
+      name: t.name,
+      description: t.description,
+      component: t.component,
+      source: 'local' as const,
+    }));
+  };
 
   useEffect(() => {
     const loadTemplates = async () => {
@@ -45,18 +65,19 @@ export const useEbookTemplates = () => {
             
             if (Array.isArray(apiTemplates) && apiTemplates.length > 0) {
               // Formata templates da API
-              const formattedApiTemplates: EbookTemplate[] = apiTemplates.map((t: any) => ({
-                id: t.id || t.slug || `api-${Math.random()}`,
-                name: t.name || t.title || 'Template',
-                description: t.description || '',
-                thumbnail: t.thumbnail || t.preview,
-                component: t.component,
+              const formattedApiTemplates: EbookTemplate[] = apiTemplates.map((t: Record<string, unknown>) => ({
+                id: typeof t.id === 'string' ? t.id : typeof t.slug === 'string' ? t.slug : `api-${Math.random()}`,
+                name: typeof t.name === 'string' ? t.name : typeof t.title === 'string' ? t.title : 'Template',
+                description: typeof t.description === 'string' ? t.description : '',
+                thumbnail: typeof t.thumbnail === 'string' ? t.thumbnail : typeof t.preview === 'string' ? t.preview : undefined,
+                component: typeof t.component === 'string' ? t.component : undefined,
                 source: 'api' as const,
               }));
 
               // Combina templates da API com os locais
+              const localTemplates = getLocalTemplates();
               setTemplates([
-                ...EBOOK_TEMPLATES.map(t => ({ ...t, source: 'local' as const })),
+                ...localTemplates,
                 ...formattedApiTemplates,
               ]);
               setError(null);
@@ -69,13 +90,21 @@ export const useEbookTemplates = () => {
         }
 
         // Fallback: usa apenas templates locais
-        setTemplates(EBOOK_TEMPLATES.map(t => ({ ...t, source: 'local' as const })));
-        setError(null);
+        const localTemplates = getLocalTemplates();
+        if (localTemplates.length > 0) {
+          setTemplates(localTemplates);
+          setError(null);
+        } else {
+          setError('Nenhum template disponível');
+        }
       } catch (err) {
         console.error('Erro ao carregar templates:', err);
         setError('Erro ao carregar templates');
-        // Mesmo com erro, usa templates locais
-        setTemplates(EBOOK_TEMPLATES.map(t => ({ ...t, source: 'local' as const })));
+        // Mesmo com erro, tenta usar templates locais
+        const localTemplates = getLocalTemplates();
+        if (localTemplates.length > 0) {
+          setTemplates(localTemplates);
+        }
       } finally {
         setLoading(false);
       }
