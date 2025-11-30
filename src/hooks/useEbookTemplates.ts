@@ -10,7 +10,7 @@ export interface EbookTemplate {
   source: 'local' | 'api';
 }
 
-const API_TEMPLATES_ENDPOINT = 'https://api.jsonbin.io/v3/b/YOUR_BIN_ID';
+const API_TEMPLATES_ENDPOINT = 'https://api.jsonbin.io/v3/b/692cd165d0ea881f400a4280';
 
 /**
  * Hook para carregar templates de ebook com fallback
@@ -45,12 +45,12 @@ export const useEbookTemplates = () => {
             
             if (Array.isArray(apiTemplates) && apiTemplates.length > 0) {
               // Formata templates da API
-              const formattedApiTemplates: EbookTemplate[] = apiTemplates.map((t: any) => ({
-                id: t.id || t.slug || `api-${Math.random()}`,
-                name: t.name || t.title || 'Template',
-                description: t.description || '',
-                thumbnail: t.thumbnail || t.preview,
-                component: t.component,
+              const formattedApiTemplates: EbookTemplate[] = apiTemplates.map((t: Record<string, unknown>) => ({
+                id: typeof t.id === 'string' ? t.id : typeof t.slug === 'string' ? t.slug : `api-${Math.random()}`,
+                name: typeof t.name === 'string' ? t.name : typeof t.title === 'string' ? t.title : 'Template',
+                description: typeof t.description === 'string' ? t.description : '',
+                thumbnail: typeof t.thumbnail === 'string' ? t.thumbnail : typeof t.preview === 'string' ? t.preview : undefined,
+                component: typeof t.component === 'string' ? t.component : undefined,
                 source: 'api' as const,
               }));
 
