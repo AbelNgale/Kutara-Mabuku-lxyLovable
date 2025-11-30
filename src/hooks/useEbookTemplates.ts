@@ -10,7 +10,7 @@ export interface EbookTemplate {
   source: 'local' | 'api';
 }
 
-const API_TEMPLATES_ENDPOINT = 'https://api.jsonbin.io/v3/b/692cd165d0ea881f400a4280/latest';
+const API_TEMPLATES_ENDPOINT = 'https://api.jsonbin.io/v3/b/692cd165d0ea881f400a4280';
 
 /**
  * Hook para carregar templates de ebook com fallback
