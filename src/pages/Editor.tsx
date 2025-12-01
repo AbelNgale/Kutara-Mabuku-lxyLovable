@@ -589,10 +589,15 @@ export default function Editor() {
                       </div>
                       <div>
                         <label className="text-sm font-medium mb-2 block">Descrição</label>
-                        <Textarea value={(ebook.description || "").replace(/<[^>]*>/g, '')} onChange={e => setEbook({
+                        <div className="ckeditor-container">
+                          <SimplifiedCKEditor 
+                            value={ebook.description || ""} 
+                            onChange={(content) => setEbook({
                       ...ebook,
-                      description: e.target.value
-                    })} placeholder="Descrição do ebook" className="w-full min-h-[200px]" />
+                      description: content
+                    })}
+                          />
+                        </div>
                       </div>
                       <div>
                         <label className="text-sm font-medium mb-2 block">Autor</label>
@@ -682,7 +687,12 @@ export default function Editor() {
                         <label className="text-sm font-medium mb-2 block">
                           Conteúdo
                         </label>
-                        <Textarea value={selectedChapter.content.replace(/<[^>]*>/g, '')} onChange={e => updateChapter(selectedChapterId, "content", e.target.value)} placeholder="Escreva o conteúdo do capítulo..." className="w-full min-h-[400px]" />
+                        <div className="ckeditor-container">
+                          <SimplifiedCKEditor 
+                            value={selectedChapter.content} 
+                            onChange={(content) => updateChapter(selectedChapterId, "content", content)}
+                          />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>}
