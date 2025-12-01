@@ -694,12 +694,24 @@ export default function Editor() {
             <div className="space-y-6">
               <div className="bg-background p-4 rounded-lg border">
                 <h2 className="text-2xl font-bold mb-2">Visualização do Template</h2>
-                <p className="text-sm text-muted-foreground">
-                  Visualize como seu ebook ficará com o template selecionado: <span className="font-semibold">{ebook.template_id}</span>
-                </p>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Visualize como seu ebook ficará com o template selecionado
+                  </p>
+                  <div className="flex items-center gap-2 pt-2">
+                    <span className="inline-block px-3 py-1 bg-primary/20 text-primary rounded-full text-sm font-medium">
+                      {ebook.template_id === 'classic' && '📄 Clássico - Layout tradicional com texto corrido'}
+                      {ebook.template_id === 'visual' && '🎨 Visual - Blocos alternados com imagens impactantes'}
+                      {ebook.template_id === 'minimal' && '✨ Minimalista - Design moderno com colunas'}
+                      {ebook.template_id === 'modern-magazine' && '📰 Revista Moderna - Layout estilo revista'}
+                      {ebook.template_id === 'minimal-book' && '📗 Minimalista - Foco no texto'}
+                      {!ebook.template_id && '⚠️ Nenhum template selecionado'}
+                    </span>
+                  </div>
+                </div>
               </div>
               
-              <div className="bg-white dark:bg-slate-950 p-8 rounded-lg border">
+              <div className="bg-white dark:bg-slate-950 p-8 rounded-lg border shadow-sm">
                 <TemplateRenderer
                   templateId={ebook.template_id}
                   title={ebook.title}
