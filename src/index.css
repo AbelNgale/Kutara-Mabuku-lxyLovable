@@ -161,14 +161,19 @@ All colors MUST be HSL.
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* Prevent dragging */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .a4-page {
   width: 8.5in;
-  height: 11in;
+  min-height: 11in;
   margin: 0 auto 2rem auto;
   background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   padding: 1in; /* Word standard: 1 inch (25.4mm) margins on all sides */
   box-sizing: border-box;
   page-break-after: always;
@@ -176,9 +181,23 @@ All colors MUST be HSL.
   position: relative;
   display: flex;
   flex-direction: column;
+  /* Prevent dragging */
+  -webkit-user-drag: none;
+  user-drag: none;
+  pointer-events: auto;
+  touch-action: manipulation;
 }
+
 .a4-page:last-child {
   margin-bottom: 0;
+}
+
+/* Editor content should be selectable and editable */
+.a4-page .ck-editor__editable {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
 }
 
 /* Container inside the page that holds scrollable content */
@@ -186,7 +205,7 @@ All colors MUST be HSL.
   flex: 1;
   width: 100%;
   height: 100%;
-  overflow-y: auto;
+  overflow-y: hidden;
   overflow-x: hidden;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -198,6 +217,52 @@ All colors MUST be HSL.
   font-size: 12pt;
   line-height: 1.15;
   font-family: 'Calibri', 'Segoe UI', sans-serif;
+}
+
+/* WYSIWYG consistent styles - shared between editor and preview */
+.a4-page h1,
+.a4-page .ck-editor__editable h1 {
+  font-size: 24pt;
+  font-weight: bold;
+  margin: 0 0 12pt 0;
+  line-height: 1.2;
+}
+
+.a4-page h2,
+.a4-page .ck-editor__editable h2 {
+  font-size: 18pt;
+  font-weight: bold;
+  margin: 0 0 10pt 0;
+  line-height: 1.2;
+}
+
+.a4-page h3,
+.a4-page .ck-editor__editable h3 {
+  font-size: 14pt;
+  font-weight: bold;
+  margin: 0 0 8pt 0;
+  line-height: 1.2;
+}
+
+.a4-page p,
+.a4-page .ck-editor__editable p {
+  font-size: 12pt;
+  line-height: 1.15;
+  margin: 0 0 6pt 0;
+  font-family: 'Calibri', 'Segoe UI', sans-serif;
+}
+
+.a4-page ul,
+.a4-page ol,
+.a4-page .ck-editor__editable ul,
+.a4-page .ck-editor__editable ol {
+  margin: 0 0 6pt 24pt;
+  padding: 0;
+}
+
+.a4-page li,
+.a4-page .ck-editor__editable li {
+  margin-bottom: 3pt;
 }
 
 .a4-page .page-content p,
@@ -219,9 +284,12 @@ All colors MUST be HSL.
 .a4-page .ck-editor,
 .a4-page .ck-editor__main {
   border: none;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 .a4-page .ck-editor__editable {
-  height: 100%;
+  flex: 1;
   background: white;
   color: #000;
   font-size: 12pt;
@@ -236,7 +304,10 @@ All colors MUST be HSL.
   overflow-y: auto !important;
   word-wrap: break-word !important;
   overflow-wrap: break-word !important;
-  white-space: pre-wrap !important;
+  white-space: normal !important;
+  /* Enable text selection in editor */
+  user-select: text;
+  -webkit-user-select: text;
 }
 .chapter-page {
   page-break-before: auto;
@@ -278,15 +349,52 @@ All colors MUST be HSL.
   display: none !important;
 }
 
-/* Rendered content in pages */
-.a4-page p,
-.a4-page div,
-.a4-page span {
-  font-size: 12pt !important;
-  line-height: 1.15 !important;
-  font-family: 'Calibri', 'Segoe UI', sans-serif !important;
-  margin: 0 !important;
-  padding: 0 !important;
+/* Page numbering for print/preview */
+.a4-page::after {
+  content: '';
+  position: absolute;
+  bottom: 0.5in;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10pt;
+  color: #666;
+}
+
+/* Chapters container */
+.chapters-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Editor content wrapper */
+.a4-editor-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 9in;
+  margin: 0 auto;
+}
+
+/* Print styles for PDF export */
+@media print {
+  .a4-editor-wrapper {
+    background: white;
+    padding: 0;
+  }
+  
+  .a4-page {
+    margin: 0;
+    box-shadow: none;
+    page-break-after: always;
+    page-break-inside: avoid;
+  }
+  
+  .a4-page:last-child {
+    page-break-after: auto;
+  }
 }
 
 /* Responsive adjustments */

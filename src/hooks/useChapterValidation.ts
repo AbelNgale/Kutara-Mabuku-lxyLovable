@@ -4,14 +4,16 @@
 
 import { validateAndNormalizeTitle, validateAndNormalizeContent } from '@/lib/sanitization';
 
+type Chapter = { title: string; content: string; chapter_order: number };
+
 export const useChapterValidation = () => {
   const validateAndUpdateChapter = (
     index: number,
     field: 'title' | 'content',
     value: string,
-    chapters: Array<{ title: string; content: string; chapter_order: number }>,
+    chapters: Chapter[],
     onError: (message: string) => void,
-    onSuccess: (chapters: typeof chapters) => void
+    onSuccess: (chapters: Chapter[]) => void
   ) => {
     if (field === 'title') {
       const validation = validateAndNormalizeTitle(value, 200);
