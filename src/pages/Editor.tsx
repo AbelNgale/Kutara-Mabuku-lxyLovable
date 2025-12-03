@@ -367,35 +367,45 @@ export default function Editor() {
 
           {/* Edit Tab - Show A4 page with editor inside */}
           <TabsContent value="edit" className="mt-0 flex justify-center w-full">
-            <div style={{ width: '8.5in', height: '11in', background: 'white', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', padding: '1in', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', marginBottom: '2rem' }}>
-              <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', width: '100%' }}>
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ fontSize: '12pt', fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>Título</label>
-                  <Input
-                    value={ebook.title}
-                    onChange={e => setEbook({ ...ebook, title: e.target.value })}
-                    placeholder="Título do ebook"
-                    style={{ fontSize: '12pt', fontFamily: "'Calibri', 'Segoe UI', sans-serif" }}
-                  />
-                </div>
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ fontSize: '12pt', fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>Autor</label>
-                  <Input
-                    value={ebook.author || ""}
-                    onChange={e => setEbook({ ...ebook, author: e.target.value })}
-                    placeholder="Nome do autor"
-                    style={{ fontSize: '12pt', fontFamily: "'Calibri', 'Segoe UI', sans-serif" }}
-                  />
-                </div>
-                <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                  <label style={{ fontSize: '12pt', fontWeight: 'bold', display: 'block', marginBottom: '0.5rem' }}>Conteúdo</label>
-                  <div style={{ flex: 1, overflow: 'hidden', width: '100%' }}>
-                    <div className="ckeditor-container" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                      <SimplifiedCKEditor
-                        value={content}
-                        onChange={setContent}
-                      />
+            <div className="a4-editor-content">
+              {/* Toolbar outside the page */}
+              <div id="editor-toolbar-container" className="mb-4 bg-card border rounded-lg p-2 shadow-sm" />
+              
+              {/* A4 Page */}
+              <div 
+                className="a4-page"
+                style={{ 
+                  userSelect: 'none',
+                  WebkitUserDrag: 'none'
+                } as React.CSSProperties}
+                draggable={false}
+              >
+                <div className="page-content" style={{ userSelect: 'text' }}>
+                  <div style={{ marginBottom: '16pt' }}>
+                    <Input
+                      value={ebook.title}
+                      onChange={e => setEbook({ ...ebook, title: e.target.value })}
+                      placeholder="Título do ebook"
+                      className="text-2xl font-bold border-none shadow-none p-0 h-auto focus-visible:ring-0"
+                      style={{ 
+                        fontSize: '24pt', 
+                        fontFamily: "'Calibri', 'Segoe UI', sans-serif",
+                        background: 'transparent'
+                      }}
+                    />
+                  </div>
+                  {ebook.author && (
+                    <div style={{ marginBottom: '16pt', color: '#666' }}>
+                      <span style={{ fontSize: '12pt', fontFamily: "'Calibri', 'Segoe UI', sans-serif" }}>
+                        por {ebook.author}
+                      </span>
                     </div>
+                  )}
+                  <div className="flex-1" style={{ minHeight: 0 }}>
+                    <SimplifiedCKEditor
+                      value={content}
+                      onChange={setContent}
+                    />
                   </div>
                 </div>
               </div>

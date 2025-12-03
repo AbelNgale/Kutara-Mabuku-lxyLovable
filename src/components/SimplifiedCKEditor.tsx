@@ -17,7 +17,7 @@ import {
   Base64UploadAdapter
 } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 
 interface SimplifiedCKEditorProps {
   value: string;
@@ -93,32 +93,39 @@ export default function SimplifiedCKEditor({ value, onChange }: SimplifiedCKEdit
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Toolbar Section - Separated for independent modification */}
+    <div className="flex flex-col h-full w-full">
+      {/* Toolbar - Fixed at top */}
       <div 
         ref={toolbarRef} 
-        className="border-b border-border bg-background sticky top-0 z-10"
+        className="border-b border-border bg-muted sticky top-0 z-10 flex-shrink-0"
+        style={{ minHeight: '40px' }}
       />
       
-      {/* A4 Pages Section - Separated for independent modification */}
-      <div className="a4-editor-wrapper flex-1 overflow-auto">
-        <div className="a4-page">
-          <CKEditor
-            editor={DecoupledEditor}
-            config={editorConfiguration}
-            data={value}
-            onReady={(editor) => {
-              if (toolbarRef.current) {
-                toolbarRef.current.appendChild(editor.ui.view.toolbar.element!);
-              }
-              editorRef.current = editor;
-            }}
-            onChange={(event, editor) => {
-              const data = editor.getData();
-              onChange(data);
-            }}
-          />
-        </div>
+      {/* Editor content area - fills remaining space */}
+      <div 
+        className="flex-1 overflow-hidden"
+        style={{ 
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
+        <CKEditor
+          editor={DecoupledEditor}
+          config={editorConfiguration}
+          data={value}
+          onReady={(editor) => {
+            if (toolbarRef.current) {
+              toolbarRef.current.innerHTML = '';
+              toolbarRef.current.appendChild(editor.ui.view.toolbar.element!);
+            }
+            editorRef.current = editor;
+          }}
+          onChange={(event, editor) => {
+            const data = editor.getData();
+            onChange(data);
+          }}
+        />
       </div>
     </div>
   );
