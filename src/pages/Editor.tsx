@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import SimplifiedCKEditor from "@/components/SimplifiedCKEditor";
-import { TemplateRenderer } from "@/components/TemplateRenderer";
 import { saveAs } from 'file-saver';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
-import { ArrowLeft, Save, Download, FileText, X } from "lucide-react";
+import { ArrowLeft, Save, Download, FileText } from "lucide-react";
 import jsPDF from "jspdf";
+
+const PagedPreview = lazy(() => import("@/components/PagedPreview"));
 
 interface Ebook {
   id: string;
@@ -412,20 +413,21 @@ export default function Editor() {
             </div>
           </TabsContent>
 
-          {/* Preview Tab */}
+          {/* Preview Tab - Using Paged.js for real pagination */}
           <TabsContent value="preview" className="mt-0 w-full">
-            <TemplateRenderer
-              templateId={ebook.template_id}
-              title={ebook.title}
-              description={ebook.description || ''}
-              author={ebook.author}
-              chapters={[{
-                title: ebook.title,
-                content: content,
-                chapter_order: 0
-              }]}
-              coverImage={coverImagePreview}
-            />
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            }>
+              <PagedPreview
+                title={ebook.title}
+                author={ebook.author}
+                description={ebook.description || ''}
+                content={content}
+                coverImage={coverImagePreview}
+              />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </div>
