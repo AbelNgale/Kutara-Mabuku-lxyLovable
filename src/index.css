@@ -98,23 +98,34 @@ All colors MUST be HSL.
   border-radius: 8px;
   overflow: hidden;
   background: hsl(var(--background));
+  width: 100%;
+  max-width: 100%;
 }
 
 .ckeditor-container .ck-editor {
   width: 100%;
+  max-width: 100%;
 }
 
 .ckeditor-container .ck-editor__main {
   min-height: 400px;
+  max-height: 100%;
+  overflow: hidden;
 }
 
 .ckeditor-container .ck-editor__editable {
   min-height: 400px;
-  padding: 1rem;
-  font-size: 14px;
-  line-height: 1.6;
+  padding: 0;
+  font-size: 12pt;
+  line-height: 1.15;
   background: hsl(var(--background));
   color: hsl(var(--foreground));
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: pre-wrap !important;
+  font-family: 'Calibri', 'Segoe UI', sans-serif;
 }
 
 .ckeditor-container .ck-editor__editable:focus {
@@ -142,65 +153,120 @@ All colors MUST be HSL.
   color: hsl(var(--primary-foreground));
 }
 
-/* US Letter Page Editor Styles (8.5" x 11") - Separated Architecture */
+/* US Letter Page Editor Styles (8.5" x 11") - Word Standard Margins */
 .a4-editor-wrapper {
   background: hsl(var(--muted) / 0.3);
   padding: 2rem;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .a4-page {
   width: 8.5in;
-  min-height: 11in;
+  height: 11in;
   margin: 0 auto 2rem auto;
   background: white;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  padding: 1in;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1in; /* Word standard: 1 inch (25.4mm) margins on all sides */
+  box-sizing: border-box;
   page-break-after: always;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
-
 .a4-page:last-child {
   margin-bottom: 0;
 }
 
-.a4-page .ck-editor {
-  border: none;
+/* Container inside the page that holds scrollable content */
+.a4-page .page-content {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: 12pt;
+  line-height: 1.15;
+  font-family: 'Calibri', 'Segoe UI', sans-serif;
 }
 
+.a4-page .page-content p,
+.a4-page .page-content div {
+  margin: 0;
+  padding: 0;
+}
+
+.a4-page .page-content h1,
+.a4-page .page-content h2,
+.a4-page .page-content h3,
+.a4-page .page-content h4,
+.a4-page .page-content h5,
+.a4-page .page-content h6 {
+  margin: 0.5em 0;
+  padding: 0;
+}
+
+.a4-page .ck-editor,
 .a4-page .ck-editor__main {
   border: none;
 }
-
 .a4-page .ck-editor__editable {
-  min-height: 9in;
+  height: 100%;
   background: white;
   color: #000;
   font-size: 12pt;
-  line-height: 1.5;
-  font-family: 'Times New Roman', Times, serif;
+  line-height: 1.15;
+  font-family: 'Calibri', 'Segoe UI', sans-serif;
   border: none;
   box-shadow: none;
   padding: 0;
   outline: none !important;
+  min-height: 0;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: pre-wrap !important;
 }
-
-/* Chapter page break styles */
 .chapter-page {
-  page-break-before: always;
-  margin-top: 3rem;
-  padding-top: 2rem;
+  page-break-before: auto;
+  margin: 0;
+  padding: 0;
 }
 
 .chapter-page:first-of-type {
   page-break-before: auto;
-  margin-top: 0;
-  padding-top: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .a4-page .ck-editor__editable:focus {
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
+}
+
+/* Cover + title band styles */
+.cover-block {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+.cover-block .cover-image {
+  width: 8.5in;
+  height: 11in;
+  object-fit: cover;
+  display: block;
 }
 
 /* Hide CKEditor branding */
@@ -210,6 +276,17 @@ All colors MUST be HSL.
 
 .ck.ck-balloon-panel {
   display: none !important;
+}
+
+/* Rendered content in pages */
+.a4-page p,
+.a4-page div,
+.a4-page span {
+  font-size: 12pt !important;
+  line-height: 1.15 !important;
+  font-family: 'Calibri', 'Segoe UI', sans-serif !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* Responsive adjustments */
