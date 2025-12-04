@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import SimplifiedCKEditor from "@/components/SimplifiedCKEditor";
+import CoverPreview from "@/components/CoverPreview";
+import { coverTemplates, CoverTemplate } from "@/components/templates/covers";
 import { saveAs } from 'file-saver';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
-import { ArrowLeft, Save, Download, FileText } from "lucide-react";
+import { ArrowLeft, Save, Download, FileText, ImageIcon } from "lucide-react";
 import jsPDF from "jspdf";
 
 const PagedPreview = lazy(() => import("@/components/PagedPreview"));
@@ -37,6 +39,7 @@ export default function Editor() {
   const [activeTab, setActiveTab] = useState("edit");
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
+  const [selectedCoverTemplate, setSelectedCoverTemplate] = useState<CoverTemplate>('classic');
 
   const getErrorMessage = (error: unknown) => {
     if (error instanceof Error) return error.message;
@@ -170,7 +173,7 @@ export default function Editor() {
       // Cover page
       if (coverImagePreview) {
         try {
-          const img = new Image();
+          const img = document.createElement('img');
           img.src = coverImagePreview;
           await new Promise<void>(resolve => {
             img.onload = () => resolve();
@@ -369,17 +372,52 @@ export default function Editor() {
           {/* Edit Tab - Show A4 page with editor inside */}
           <TabsContent value="edit" className="mt-0 flex justify-center w-full">
             <div className="a4-editor-content">
-              {/* Toolbar outside the page */}
-              <div id="editor-toolbar-container" className="mb-4 bg-card border rounded-lg p-2 shadow-sm" />
+              {/* Cover Template Selector */}
+              <div className="mb-4 p-4 bg-card border rounded-lg shadow-sm">
+                <div className="flex items-center gap-4 flex-wrap">
+                  <span className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4" />
+                    Template da Capa:
+                  </span>
+                  <div className="flex gap-2 flex-wrap">
+                    {coverTemplates.map((template) => (
+                      <Button
+                        key={template.id}
+                        variant={selectedCoverTemplate === template.id ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setSelectedCoverTemplate(template.id)}
+                      >
+                        {template.name}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Cover Page Preview */}
+              <div className="mb-6">
+                <p className="text-sm text-muted-foreground mb-2 text-center">Capa do Ebook</p>
+                <div style={{ transform: 'scale(0.5)', transformOrigin: 'top center', marginBottom: '-5.5in' }}>
+                  <CoverPreview
+                    template={selectedCoverTemplate}
+                    title={ebook.title}
+                    author={ebook.author}
+                    coverImage={coverImagePreview}
+                    genre={ebook.genre}
+                  />
+                </div>
+              </div>
               
-              {/* A4 Page */}
+              {/* A4 Page for Content */}
               <div 
                 className="a4-page"
                 style={{ 
                   userSelect: 'none',
-                  WebkitUserDrag: 'none'
+                  WebkitUserDrag: 'none',
+                  pointerEvents: 'auto'
                 } as React.CSSProperties}
                 draggable={false}
+                onDragStart={(e) => e.preventDefault()}
               >
                 <div className="page-content" style={{ userSelect: 'text' }}>
                   <div style={{ marginBottom: '16pt' }}>
@@ -391,7 +429,8 @@ export default function Editor() {
                       style={{ 
                         fontSize: '24pt', 
                         fontFamily: "'Calibri', 'Segoe UI', sans-serif",
-                        background: 'transparent'
+                        background: 'transparent',
+                        color: '#000'
                       }}
                     />
                   </div>
@@ -402,7 +441,7 @@ export default function Editor() {
                       </span>
                     </div>
                   )}
-                  <div className="flex-1" style={{ minHeight: 0 }}>
+                  <div className="editor-area" style={{ flex: 1, minHeight: '600px', overflow: 'hidden' }}>
                     <SimplifiedCKEditor
                       value={content}
                       onChange={setContent}
@@ -420,13 +459,25 @@ export default function Editor() {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
             }>
-              <PagedPreview
-                title={ebook.title}
-                author={ebook.author}
-                description={ebook.description || ''}
-                content={content}
-                coverImage={coverImagePreview}
-              />
+              <div className="paged-preview-container">
+                {/* Cover with selected template */}
+                <CoverPreview
+                  template={selectedCoverTemplate}
+                  title={ebook.title}
+                  author={ebook.author}
+                  coverImage={coverImagePreview}
+                  genre={ebook.genre}
+                />
+                
+                {/* Content pages */}
+                <PagedPreview
+                  title={ebook.title}
+                  author={ebook.author}
+                  description={ebook.description || ''}
+                  content={content}
+                  coverImage={null}
+                />
+              </div>
             </Suspense>
           </TabsContent>
         </Tabs>
