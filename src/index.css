@@ -170,14 +170,15 @@ All colors MUST be HSL.
 
 .a4-page {
   width: 8.5in;
-  min-height: 11in;
+  height: 11in; /* Fixed height - no stretching */
+  max-height: 11in;
   margin: 0 auto 2rem auto;
   background: white;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   padding: 1in; /* Word standard: 1 inch (25.4mm) margins on all sides */
   box-sizing: border-box;
   page-break-after: always;
-  overflow: hidden;
+  overflow: hidden; /* Prevent content overflow */
   position: relative;
   display: flex;
   flex-direction: column;
@@ -186,6 +187,13 @@ All colors MUST be HSL.
   user-drag: none;
   pointer-events: auto;
   touch-action: manipulation;
+  cursor: default;
+}
+
+/* Prevent any dragging on the page */
+.a4-page * {
+  -webkit-user-drag: none;
+  user-drag: none;
 }
 
 .a4-page:last-child {
@@ -205,8 +213,7 @@ All colors MUST be HSL.
   flex: 1;
   width: 100%;
   height: 100%;
-  overflow-y: hidden;
-  overflow-x: hidden;
+  overflow: hidden; /* No scrolling - fixed page */
   word-wrap: break-word;
   overflow-wrap: break-word;
   word-break: break-word;
@@ -217,6 +224,14 @@ All colors MUST be HSL.
   font-size: 12pt;
   line-height: 1.15;
   font-family: 'Calibri', 'Segoe UI', sans-serif;
+}
+
+/* Editor area with scrolling */
+.a4-page .editor-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(11in - 2in - 80px); /* Page height - margins - header */
 }
 
 /* WYSIWYG consistent styles - shared between editor and preview */
