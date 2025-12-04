@@ -9,9 +9,10 @@ import SimplifiedCKEditor from "@/components/SimplifiedCKEditor";
 import CoverPreview from "@/components/CoverPreview";
 import { coverTemplates, CoverTemplate } from "@/components/templates/covers";
 import { saveAs } from 'file-saver';
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from 'docx';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, ImageRun, PageBreak } from 'docx';
 import { ArrowLeft, Save, Download, FileText, ImageIcon } from "lucide-react";
 import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const PagedPreview = lazy(() => import("@/components/PagedPreview"));
 
@@ -167,76 +168,109 @@ export default function Editor() {
         return temp.textContent || temp.innerText || '';
       };
 
-      const pdf = new jsPDF();
-      let yPosition = 20;
-
-      // Cover page
-      if (coverImagePreview) {
-        try {
-          const img = document.createElement('img');
-          img.src = coverImagePreview;
-          await new Promise<void>(resolve => {
-            img.onload = () => resolve();
-          });
-          const pageWidth = pdf.internal.pageSize.getWidth();
-          const pageHeight = pdf.internal.pageSize.getHeight();
-          const imgRatio = img.width / img.height;
-          const pageRatio = pageWidth / pageHeight;
-          let finalWidth, finalHeight, xOffset, yOffset;
-          if (imgRatio > pageRatio) {
-            finalHeight = pageHeight;
-            finalWidth = finalHeight * imgRatio;
-            xOffset = (pageWidth - finalWidth) / 2;
-            yOffset = 0;
-          } else {
-            finalWidth = pageWidth;
-            finalHeight = finalWidth / imgRatio;
-            xOffset = 0;
-            yOffset = (pageHeight - finalHeight) / 2;
-          }
-          pdf.addImage(img, 'JPEG', xOffset, yOffset, finalWidth, finalHeight);
-        } catch (error) {
-          console.error('Erro ao adicionar capa ao PDF:', error);
-        }
-      }
-
-      // Title page
-      pdf.addPage();
-      yPosition = 20;
-      pdf.setFontSize(24);
-      const titleText = htmlToText(ebook.title);
-      const titleLines = pdf.splitTextToSize(titleText, 170);
-      pdf.text(titleLines, 20, yPosition);
-      yPosition += titleLines.length * 12 + 20;
-      if (ebook.author) {
-        pdf.setFontSize(14);
-        pdf.text(`Escrito por ${ebook.author}`, 20, yPosition);
-      }
-
-      // Description page
-      if (ebook.description) {
-        pdf.addPage();
-        yPosition = 20;
-        pdf.setFontSize(12);
-        const descText = htmlToText(ebook.description);
-        const descLines = pdf.splitTextToSize(descText, 170);
-        pdf.text(descLines, 20, yPosition);
-      }
-
-      // Content page
-      pdf.addPage();
-      yPosition = 20;
-      pdf.setFontSize(12);
-      const plainText = htmlToText(content);
-      const contentLines = pdf.splitTextToSize(plainText, 170);
-      contentLines.forEach((line: string) => {
-        if (yPosition > 280) {
-          pdf.addPage();
-          yPosition = 20;
-        }
-        pdf.text(line, 20, yPosition);
-        yPosition += 7;
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'pt',
+        format: 'a4'
       });
+      
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 72; // 1 inch margins
+      const contentWidth = pageWidth - (margin * 2);
+
+      // 1. Capture cover from preview if available
+      const coverEl = document.querySelector('.cover-preview-container') as HTMLElement;
+      if (coverEl) {
+        try {
+          const canvas = await html2canvas(coverEl, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff'
+          });
+          const imgData = canvas.toDataURL('image/jpeg', 0.95);
+          pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+        } catch (err) {
+          console.error('Cover capture error:', err);
+        }
+      }
+
+      // 2. Capture paged content if available
+      const pagedContainer = document.querySelector('.pagedjs_pages') as HTMLElement;
+      if (pagedContainer) {
+        const pages = pagedContainer.querySelectorAll('.pagedjs_page');
+        for (let i = 0; i < pages.length; i++) {
+          pdf.addPage();
+          try {
+            const canvas = await html2canvas(pages[i] as HTMLElement, {
+              scale: 2,
+              useCORS: true,
+              allowTaint: true,
+              backgroundColor: '#ffffff'
+            });
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+          } catch (err) {
+            console.error('Page capture error:', err);
+          }
+        }
+      } else {
+        // Fallback: text-based PDF
+        pdf.addPage();
+        let yPos = margin + 100;
+        
+        // Title
+        pdf.setFontSize(28);
+        pdf.setFont('helvetica', 'bold');
+        const titleLines = pdf.splitTextToSize(htmlToText(ebook.title), contentWidth);
+        pdf.text(titleLines, pageWidth / 2, yPos, { align: 'center' });
+        yPos += titleLines.length * 35 + 40;
+        
+        if (ebook.author) {
+          pdf.setFontSize(16);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(`por ${ebook.author}`, pageWidth / 2, yPos, { align: 'center' });
+        }
+        
+        // Description
+        if (ebook.description) {
+          pdf.addPage();
+          yPos = margin;
+          pdf.setFontSize(12);
+          pdf.setFont('helvetica', 'italic');
+          const descLines = pdf.splitTextToSize(htmlToText(ebook.description), contentWidth);
+          for (const line of descLines) {
+            if (yPos > pageHeight - margin) {
+              pdf.addPage();
+              yPos = margin;
+            }
+            pdf.text(line, margin, yPos);
+            yPos += 18;
+          }
+        }
+        
+        // Content
+        pdf.addPage();
+        yPos = margin;
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'normal');
+        const plainText = htmlToText(content);
+        const paragraphs = plainText.split('\n').filter(p => p.trim());
+        
+        for (const para of paragraphs) {
+          const lines = pdf.splitTextToSize(para, contentWidth);
+          for (const line of lines) {
+            if (yPos > pageHeight - margin) {
+              pdf.addPage();
+              yPos = margin;
+            }
+            pdf.text(line, margin, yPos);
+            yPos += 18;
+          }
+          yPos += 12;
+        }
+      }
 
       pdf.save(`${htmlToText(ebook.title)}.pdf`);
       toast({ title: "PDF gerado!", description: "O download foi iniciado." });
@@ -254,47 +288,94 @@ export default function Editor() {
         return temp.textContent || temp.innerText || '';
       };
 
-      const docSections: Paragraph[] = [];
+      const children: Paragraph[] = [];
 
-      // Title
-      docSections.push(new Paragraph({
-        text: htmlToText(ebook.title),
-        heading: HeadingLevel.HEADING_1,
-        alignment: AlignmentType.CENTER,
-        spacing: { after: 400 }
-      }));
+      // 1. Capture cover as image
+      const coverEl = document.querySelector('.cover-preview-container') as HTMLElement;
+      if (coverEl) {
+        try {
+          const canvas = await html2canvas(coverEl, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff'
+          });
+          const dataUrl = canvas.toDataURL('image/png');
+          const base64 = dataUrl.split(',')[1];
+          const coverData = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+          
+          children.push(
+            new Paragraph({
+              children: [
+                new ImageRun({
+                  data: coverData,
+                  transformation: { width: 500, height: 707 },
+                  type: 'png'
+                })
+              ],
+              alignment: AlignmentType.CENTER
+            }),
+            new Paragraph({ children: [new PageBreak()] })
+          );
+        } catch (err) {
+          console.error('Cover capture error:', err);
+        }
+      }
 
-      // Author
-      if (ebook.author) {
-        docSections.push(new Paragraph({
-          children: [new TextRun({ text: `Escrito por ${ebook.author}`, bold: true })],
+      // 2. Title page
+      children.push(
+        new Paragraph({
+          text: htmlToText(ebook.title),
+          heading: HeadingLevel.TITLE,
           alignment: AlignmentType.CENTER,
-          spacing: { after: 400 }
-        }));
+          spacing: { before: 400, after: 200 }
+        })
+      );
+
+      if (ebook.author) {
+        children.push(
+          new Paragraph({
+            children: [new TextRun({ text: `por ${ebook.author}`, italics: true, size: 28 })],
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 400 }
+          })
+        );
       }
 
-      // Description
+      children.push(new Paragraph({ children: [new PageBreak()] }));
+
+      // 3. Description
       if (ebook.description) {
-        docSections.push(new Paragraph({
-          text: htmlToText(ebook.description),
-          spacing: { after: 400 }
-        }));
+        children.push(
+          new Paragraph({
+            text: 'Sinopse',
+            heading: HeadingLevel.HEADING_1,
+            spacing: { after: 200 }
+          })
+        );
+        
+        const descText = htmlToText(ebook.description);
+        descText.split('\n').filter(p => p.trim()).forEach(para => {
+          children.push(new Paragraph({ text: para, spacing: { after: 200 } }));
+        });
+
+        children.push(new Paragraph({ children: [new PageBreak()] }));
       }
 
-      // Content
+      // 4. Content with proper paragraphs
       const contentText = htmlToText(content);
       const paragraphs = contentText.split('\n').filter(p => p.trim());
+      
       paragraphs.forEach(para => {
-        docSections.push(new Paragraph({
-          text: para,
-          spacing: { after: 200 }
-        }));
+        children.push(new Paragraph({ text: para, spacing: { after: 240 } }));
       });
 
       const doc = new Document({
         sections: [{
-          properties: {},
-          children: docSections
+          properties: {
+            page: { margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } }
+          },
+          children
         }]
       });
 
